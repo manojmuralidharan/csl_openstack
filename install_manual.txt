@@ -1,0 +1,5 @@
+#!/bin/bash
+
+#Update interfaces configuration and modify routes & resolve configurations as required.
+ route -n
+ vi  /etc/resolv.conf
