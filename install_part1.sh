@@ -48,7 +48,6 @@ function check_ip_forwarding {
 function install_keystone {
    apt-get install -y keystone
    #Modify conf, restart and poputele db
-   wget https://raw2.github.com/Ch00k/openstack-install-aio/master/populate_keystone.sh
    chmod +x populate_keystone.sh 
    modify_keystone_conf
    rm /var/lib/keystone/keystone.db 
@@ -72,19 +71,21 @@ function install_glance {
 }
 
 #Neutron: OVS
-# apt-get install -y openvswitch-controller openvswitch-switch openvswitch-datapath-dkms
-# ovs-vsctl add-br br-int
-# ovs-vsctl add-br br-ex
- #vi /etc/network/interfaces
+function install_neutron_vs {
+ apt-get install -y openvswitch-controller openvswitch-switch openvswitch-datapath-dkms
+ ovs-vsctl add-br br-int
+ ovs-vsctl add-br br-ex
  #ovs-vsctl add-port br-ex eth0
  #/etc/init.d/networking restart
+}
 
 function main {
    update_repo
-#   install_mysql
-#   check_ip_forwarding   
-#   install_keystone
-#   install_glance
+   install_mysql
+   check_ip_forwarding   
+   install_keystone
+   install_glance
+   install_neutron_vs
 }
 
 main 2>&1
