@@ -2,11 +2,11 @@
 
 function modify_keystone_conf {
    sed -i "s/^connection .*$/connection = mysql:\/\/keystone:openstackcs@$MGMT_IP\/keystone/g" /etc/keystone/keystone.conf
-   sed -i "s/openstacktest/openstackcs/g" $ROOT_DIR/install_scripts/populate_keystone.sh
-   sed -i "s/^HOST_IP.*$/HOST_IP=$MGMT_IP/g" $ROOT_DIR/install_scripts/populate_keystone.sh
-   sed -i "s/^EXT_HOST_IP.*$/EXT_HOST_IP=$EXT_IP/g" $ROOT_DIR/install_scripts/populate_keystone.sh
-   sed -i "s/^ADMIN_PASSWORD.*$/ADMIN_PASSWORD=openstackcs/g" $ROOT_DIR/install_scripts/populate_keystone.sh
-   sed -i "s/^SERVICE_PASSWORD.*$/SERVICE_PASSWORD=service/g" $ROOT_DIR/install_scripts/populate_keystone.sh
+   sed -i "s/openstacktest/openstackcs/g" $ROOT_DIR/populate_keystone.sh
+   sed -i "s/^HOST_IP.*$/HOST_IP=$MGMT_IP/g" $ROOT_DIR/populate_keystone.sh
+   sed -i "s/^EXT_HOST_IP.*$/EXT_HOST_IP=$EXT_IP/g" $ROOT_DIR/populate_keystone.sh
+   sed -i "s/^ADMIN_PASSWORD.*$/ADMIN_PASSWORD=openstackcs/g" $ROOT_DIR/populate_keystone.sh
+   sed -i "s/^SERVICE_PASSWORD.*$/SERVICE_PASSWORD=service/g" $ROOT_DIR/populate_keystone.sh
 }
 
 function modify_glance_conf {
