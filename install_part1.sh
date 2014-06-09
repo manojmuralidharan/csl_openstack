@@ -34,12 +34,7 @@ function install_mysql {
    #Modify conf, restart and poputele db
    sed -i 's/127.0.0.1/0.0.0.0/g' /etc/mysql/my.cnf
    service mysql restart
-   mkdir install_scripts
-   cd install_scripts/
-   wget https://raw2.github.com/Ch00k/openstack-install-aio/master/populate_database.sh
    chmod +x populate_database.sh
-   sed -i "s/-p/-popenstackcs/g" populate_database.sh 
-   sed -i 's/openstacktest/openstackcs/g' populate_database.sh 
    ./populate_database.sh
 }
 
