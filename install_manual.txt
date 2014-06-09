@@ -1,5 +1,48 @@
-#!/bin/bash
 
-#Update interfaces configuration and modify routes & resolve configurations as required.
- route -n
- vi  /etc/resolv.conf
+Once install_part1.sh completes do the following manually
+1. observe ifconfig output
+   a. You should see two bridge interfaces br-ex and br-int
+   b. Do "ovs-vsctl add-port br-ex eth0". Assuming eth0 as the one connected to INTERNET.
+
+Note: After this operation the connection to internet would be lost from eth0.
+
+2. Update interfaces configuration and modify routes/resolve configurations as required.
+   a. Replicate the configuration that eth0 had onto br-ex and conf eth0 to come up manually
+      A sample /etc/network/interfaces file is as below
+       -----------------------------------------------------------------------
+      |	auto lo                                                               | 
+      |	iface lo inet loopback                                                |
+      |	                                                                      |
+      |	auto eth0                                                             |
+      | iface eth0 inet manual                                                |
+      |	   up ifconfig $IFACE 0.0.0.0 up                                      |
+      |	   up ip link set $IFACE promisc on                                   |
+      |	   down ip link set $IFACE promisc off                                |
+      |	   down ifconfig $IFACE down                                          |
+      |                                                                       |
+      |	auto br-ex                                                            |
+      |	iface br-ex inet static                                               |
+      |    address 10.2.56.118                                                |
+      |	   netmask 255.255.255.0                                              |
+      |   up route add default gw 10.2.56.1                                   |
+      |                                                                       |
+      |	auto eth1                                                             |
+      |	iface eth1 inet static                                                |
+      |	   address 192.168.8.70                                               |
+      |	   netmask 255.255.255.0                                              |
+      |    up route add -net 192.168.0.0 netmask 255.255.0.0 gw 192.168.8.254 |
+       -----------------------------------------------------------------------
+
+   b. Edit /etc/resolve to put the correct dns nameserver
+
+3. Restart networking by "/etc/init.d/networking restart"
+
+4. Reference command tips
+       -----------------------------------------------------
+      | route -n            | for the routing table         |
+      | /etc/resolv.conf    | The dns config file           |
+      | ifconfig OR ip link | for interfaces and their IPs  |
+      |                                                     |
+       -----------------------------------------------------
+
+5. Once you are able to reach internet run install_part2.sh

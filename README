@@ -1,9 +1,7 @@
+
 This is one way to setup an all in one(single node) openstack environment.
-Begin by running the install_part1 script
-Then manually setup your host networking getting hints from install_manual.txt file
-After that execute the install_part2 script
-
-To verify things are working fine do the following
-
-Now setup neutron networks for VMs by executing the openstack_test.sh
+1. Begin by running the install_part1.sh script
+2. Then manually setup your host networking getting hints referring install_manual.txt
+3. Finally execute the install_part2.sh
+4. Setup neutron networks for VMs by executing the openstack_test.sh
 
