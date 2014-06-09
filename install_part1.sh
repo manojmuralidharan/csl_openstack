@@ -72,13 +72,21 @@ function install_glance {
 
 #Neutron: OVS
 function install_neutron_vs {
- apt-get install -y openvswitch-controller openvswitch-switch openvswitch-datapath-dkms
- ovs-vsctl add-br br-int
- ovs-vsctl add-br br-ex
- #ovs-vsctl add-port br-ex eth0
- #/etc/init.d/networking restart
+   apt-get install -y openvswitch-controller openvswitch-switch openvswitch-datapath-dkms
+   ovs-vsctl add-br br-int
+   ovs-vsctl add-br br-ex
 }
 
+#After ovs bridges are created the network interfaces are to be re-alligned. For this refer install_manual.txt.
+function install_manual {
+   echo "************************************************************************************** "
+   echo "Installation part 1 is completed........ "
+   echo "Before part 2 you should re-configure the network interfaces to suit openstack needs."
+   echo "With the help of install_manual.txt set up the interfaces and netwroking of the host"
+   echo "************************************************************************************** "
+}
+
+#main function where the real execution begins
 function main {
    update_repo
    install_mysql
@@ -86,6 +94,7 @@ function main {
    install_keystone
    install_glance
    install_neutron_vs
+   install_manual
 }
 
 main 2>&1
