@@ -33,11 +33,11 @@ Note: After this operation the connection to internet would be lost from eth0.
       |    up route add -net 192.168.0.0 netmask 255.255.0.0 gw 192.168.8.254 |
        -----------------------------------------------------------------------
 
-   b. Edit /etc/resolve to put the correct dns nameserver
+3. Restart networking by "/etc/init.d/networking restart".
 
-3. Restart networking by "/etc/init.d/networking restart"
+4. Edit /etc/resolv.conf to put the correct dns nameserver
 
-4. Reference command tips
+5. Reference command tips
        -----------------------------------------------------
       | route -n            | for the routing table         |
       | /etc/resolv.conf    | The dns config file           |
@@ -45,4 +45,4 @@ Note: After this operation the connection to internet would be lost from eth0.
       |                                                     |
        -----------------------------------------------------
 
-5. Once you are able to reach internet run install_part2.sh
+6. Once you are able to reach internet run install_part2.sh

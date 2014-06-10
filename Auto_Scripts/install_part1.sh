@@ -79,11 +79,11 @@ function install_neutron_vs {
 
 #After ovs bridges are created the network interfaces are to be re-alligned. For this refer install_manual.txt.
 function install_manual {
-   echo "************************************************************************************** "
-   echo "Installation part 1 is completed........ "
-   echo "Before part 2 you should re-configure the network interfaces to suit openstack needs."
-   echo "With the help of install_manual.txt set up the interfaces and netwroking of the host"
-   echo "************************************************************************************** "
+   echo "****************************************************************************************"
+   echo "* Installation part 1 is completed........                                             *"
+   echo "* Before part 2 you should re-configure the network interfaces to suit openstack needs *"
+   echo "* With the help of install_manual.txt set up the interfaces and netwroking of the host *"
+   echo "****************************************************************************************"
 }
 
 #main function where the real execution begins
