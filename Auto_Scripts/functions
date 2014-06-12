@@ -1,5 +1,27 @@
 #!/bin/bash
 
+function setProperty {
+
+  section=$1
+  keyVal=$2
+  newKeyVal=$3
+  files=$4
+
+  for file in $files
+  do
+        grep -q  $section $file
+        sectionPresent=`echo $?`
+        if [ $sectionPresent == 0 ]; then
+                sed -i "s/^.*#*.*$section.*$/$section/" $file
+                sed -i "/$section/,/[\[$]/{/^ *$keyVal.*$/d}" $file
+                sed -i "/$section.*$/a$newKeyVal" $file
+        else
+                echo $section | sed s'@\\@@g' >> $file && echo $newKeyVal | sed s'@\\@@g' >> $file
+        fi
+  done
+}
+
+
 function modify_keystone_conf {
    sed -i "s/^connection .*$/connection = mysql:\/\/keystone:openstackcs@$MGMT_IP\/keystone/g" /etc/keystone/keystone.conf
    sed -i "s/openstacktest/openstackcs/g" $ROOT_DIR/populate_keystone.sh
@@ -27,44 +49,52 @@ function modify_glance_conf {
 function modify_neutron_conf {
 #do the necessary /etc/network/interfaces and /etc/resolv.conf modificatins manually
 
-   sed -i "s/^auth_host.*$/auth_host = $MGMT_IP/g" /etc/neutron/neutron.conf /etc/neutron/api-paste.ini
-   sed -i "s/^admin_tenant_name.*$/admin_tenant_name = service/g" /etc/neutron/neutron.conf /etc/neutron/api-paste.ini
-   sed -i "s/^admin_user.*$/admin_user = neutron/g" /etc/neutron/neutron.conf /etc/neutron/api-paste.ini
-   sed -i "s/^admin_password.*$/admin_password = openstackcs/g" /etc/neutron/neutron.conf /etc/neutron/api-paste.ini
-   sed -i "s/^signing_dir.*$/signing_dir = \$state_path\/keystone-signing/g" /etc/neutron/neutron.conf
-   sed -i "s/^connection.*$/connection = mysql:\/\/neutron:openstackcs@$MGMT_IP\/neutron/g" /etc/neutron/neutron.conf /etc/neutron/api-paste.ini
-   sed -i "s/^paste.filter_factory.*$/paste.filter_factory = keystoneclient.middleware.auth_token:filter_factory/g" /etc/neutron/api-paste.ini
+   replace_OR_add "\[keystone_authtoken\]" "auth_host" "auth_host = $MGMT_IP" "/etc/neutron/neutron.conf" 
+   replace_OR_add "\[keystone_authtoken\]" "auth_port" "auth_port = 35357" "/etc/neutron/neutron.conf "
+   replace_OR_add "\[keystone_authtoken\]" "auth_protocol" "auth_protocol = http" "/etc/neutron/neutron.conf"
+   replace_OR_add "\[keystone_authtoken\]" "admin_tenant_name" "admin_tenant_name = service" "/etc/neutron/neutron.conf"
+   replace_OR_add "\[keystone_authtoken\]" "admin_user" "admin_user = neutron" "/etc/neutron/neutron.conf"
+   replace_OR_add "\[keystone_authtoken\]" "admin_password" "admin_password = openstackcs" "/etc/neutron/neutron.conf"
+   replace_OR_add "\[keystone_authtoken\]" "signing_dir" "signing_dir = \$state_path\/keystone-signing" "/etc/neutron/neutron.conf"
+   replace_OR_add "\[database\]" "connection" "connection = mysql:\/\/neutron:openstackcs@$MGMT_IP\/neutron" "/etc/neutron/neutron.conf"
+   
+   replace_OR_add "auth_host" "auth_host = $MGMT_IP" "/etc/neutron/api-paste.ini"
+   replace_OR_add "auth_port" "auth_port = 35357" "/etc/neutron/api-paste.ini"
+   replace_OR_add "auth_protocol" "auth_protocol = http" "/etc/neutron/api-paste.ini"
+   replace_OR_add "admin_tenant_name" "admin_tenant_name = service" "/etc/neutron/api-paste.ini"
+   replace_OR_add "admin_user" "admin_user = neutron" "/etc/neutron/api-paste.ini"
+   replace_OR_add "admin_password" "admin_password = openstackcs" "/etc/neutron/api-paste.ini"
+   replace_OR_add "paste.filter_factory" "paste.filter_factory = keystoneclient.middleware.auth_token:filter_factory" "/etc/neutron/api-paste.ini"
 
-   sed -i "s/^auth_url.*$/auth_url = http:\/\/$MGMT_IP:35357\/v2.0/g" /etc/neutron/metadata_agent.ini
-   sed -i "s/^auth_region.*$/auth_region = RegionOne/g" /etc/neutron/metadata_agent.ini
-   sed -i "s/^nova_metadata_ip.*$/nova_metadata_ip = $MGMT_IP/g" /etc/neutron/metadata_agent.ini
-   sed -i "s/^nova_metadata_port.*$/nova_metadata_port = 8775/g" /etc/neutron/metadata_agent.ini
-   sed -i "s/^metadata_proxy_shared_secret.*$/metadata_proxy_shared_secret = openstackcs/g" /etc/neutron/metadata_agent.ini
-   sed -i "s/^admin_tenant_name.*$/admin_tenant_name = service/g" /etc/neutron/metadata_agent.ini
-   sed -i "s/^admin_user.*$/admin_user = neutron/g" /etc/neutron/metadata_agent.ini
-   sed -i "s/^admin_password.*$/admin_password = openstackcs/g" /etc/neutron/metadata_agent.ini
 
-   sed -i "s/^interface_driver.*$/interface_driver = neutron.agent.linux.interface.OVSInterfaceDriver/g" /etc/neutron/l3_agent.ini /etc/neutron/dhcp_agent.ini
-   sed -i "s/^use_namespaces.*$/use_namespaces = True/g" /etc/neutron/l3_agent.ini /etc/neutron/dhcp_agent.ini
-   sed -i "s/^external_network_bridge.*$/external_network_bridge = br-ex/g" /etc/neutron/l3_agent.ini 
-   sed -i "s/^signing_dir.*$/signing_dir = \/var\/cache\/neutron/g" /etc/neutron/l3_agent.ini /etc/neutron/dhcp_agent.ini
-   sed -i "s/^l3_agent_manager.*$/l3_agent_manager = neutron.agent.l3_agent.L3NATAgentWithStateReport/g" /etc/neutron/l3_agent.ini 
-   sed -i "s/^root_helper.*$/root_helper = sudo neutron-rootwrap \/etc\/neutron\/rootwrap.conf/g" /etc/neutron/l3_agent.ini /etc/neutron/dhcp_agent.ini
-   sed -i "s/^interface_driver.*$/interface_driver = neutron.agent.linux.interface.OVSInterfaceDriver/g" /etc/neutron/l3_agent.ini /etc/neutron/dhcp_agent.ini
-   sed -i "s/^auth_url.*$/auth_url = http:\/\/$MGMT_IP:35357\/v2.0/g" /etc/neutron/l3_agent.ini /etc/neutron/dhcp_agent.ini
-   sed -i "s/^admin_tenant_name.*$/admin_tenant_name = service/g" /etc/neutron/l3_agent.ini /etc/neutron/dhcp_agent.ini
-   sed -i "s/^admin_user.*$/admin_user = neutron/g" /etc/neutron/l3_agent.ini /etc/neutron/dhcp_agent.ini
-   sed -i "s/^admin_password.*$/admin_password = openstackcs/g" /etc/neutron/l3_agent.ini /etc/neutron/dhcp_agent.ini
+   replace_OR_add "auth_url" "auth_url = http:\/\/$MGMT_IP:35357\/v2.0" "/etc/neutron/metadata_agent.ini"
+   replace_OR_add "auth_region" "auth_region = RegionOne" "/etc/neutron/metadata_agent.ini"
+   replace_OR_add "nova_metadata_ip" "nova_metadata_ip = $MGMT_IP" "/etc/neutron/metadata_agent.ini"
+   replace_OR_add "nova_metadata_port" "nova_metadata_port = 8775" "/etc/neutron/metadata_agent.ini"
+   replace_OR_add "metadata_proxy_shared_secret" "metadata_proxy_shared_secret = openstackcs" "/etc/neutron/metadata_agent.ini"
+   replace_OR_add "admin_tenant_name" "admin_tenant_name = service" "/etc/neutron/metadata_agent.ini"
+   replace_OR_add "admin_user" "admin_user = neutron" "/etc/neutron/metadata_agent.ini"
+   replace_OR_add "admin_password" "admin_password = openstackcs" "/etc/neutron/metadata_agent.ini"
 
-   sed -i "s/^state_path.*$/state_path = \/var\/lib\/neutron/g" /etc/neutron/dhcp_agent.ini
-   sed -i "s/^dhcp_driver.*$/dhcp_driver = neutron.agent.linux.dhcp.Dnsmasq/g" /etc/neutron/dhcp_agent.ini
-
-   sed -i "s/^tenant_network_type.*$/tenant_network_type = gre/g" /etc/neutron/plugins/openvswitch/ovs_neutron_plugin.ini
-   sed -i "s/^enable_tunneling.*$/enable_tunneling = True/g" /etc/neutron/plugins/openvswitch/ovs_neutron_plugin.ini
-   sed -i "s/^tunnel_id_ranges.*$/tunnel_id_ranges = 1:1000/g" /etc/neutron/plugins/openvswitch/ovs_neutron_plugin.ini
-   sed -i "s/^integration_bridge.*$/integration_bridge = br-int/g" /etc/neutron/plugins/openvswitch/ovs_neutron_plugin.ini
-   sed -i "s/^tunnel_bridge.*$/tunnel_bridge = br-tun/g" /etc/neutron/plugins/openvswitch/ovs_neutron_plugin.ini
-   sed -i "s/^local_ip.*$/local_ip = $MGMT_IP/g" /etc/neutron/plugins/openvswitch/ovs_neutron_plugin.ini
-   sed -i "s/^firewall_driver.*$/firewall_driver = neutron.agent.linux.iptables_firewall.OVSHybridIptablesFirewallDriver/g" /etc/neutron/plugins/openvswitch/ovs_neutron_plugin.ini
-   sed -i "s/^sql_connection.*$/sql_connection=mysql:\/\/neutron:openstacktest@$MGMT_IP\/neutron/g" /etc/neutron/plugins/openvswitch/ovs_neutron_plugin.ini
+   replace_OR_add "interface_driver" "interface_driver = neutron.agent.linux.interface.OVSInterfaceDriver" "/etc/neutron/l3_agent.ini /etc/neutron/dhcp_agent.ini"
+   replace_OR_add "use_namespaces" "use_namespaces = True" "/etc/neutron/l3_agent.ini /etc/neutron/dhcp_agent.ini"
+   replace_OR_add "external_network_bridge" "external_network_bridge = br-ex" "/etc/neutron/l3_agent.ini"
+   replace_OR_add "signing_dir" "signing_dir = \/var\/cache\/neutron" "/etc/neutron/l3_agent.ini /etc/neutron/dhcp_agent.ini"
+   replace_OR_add "l3_agent_manager" "l3_agent_manager = neutron.agent.l3_agent.L3NATAgentWithStateReport" "/etc/neutron/l3_agent.ini"
+   replace_OR_add "root_helper" "root_helper = sudo neutron-rootwrap \/etc\/neutron\/rootwrap.conf" "/etc/neutron/l3_agent.ini /etc/neutron/dhcp_agent.ini"
+   replace_OR_add "interface_driver" "interface_driver = neutron.agent.linux.interface.OVSInterfaceDriver" "/etc/neutron/l3_agent.ini /etc/neutron/dhcp_agent.ini"
+   replace_OR_add "auth_url" "auth_url = http:\/\/$MGMT_IP:35357\/v2.0" "/etc/neutron/l3_agent.ini /etc/neutron/dhcp_agent.ini"
+   replace_OR_add "admin_tenant_name" "admin_tenant_name = service" "/etc/neutron/l3_agent.ini /etc/neutron/dhcp_agent.ini"
+   replace_OR_add "admin_user" "admin_user = neutron" "/etc/neutron/l3_agent.ini /etc/neutron/dhcp_agent.ini"
+   replace_OR_add "admin_password" "admin_password = openstackcs" "/etc/neutron/l3_agent.ini /etc/neutron/dhcp_agent.ini"
+   replace_OR_add "state_path" "state_path = \/var\/lib\/neutron" "/etc/neutron/dhcp_agent.ini"
+   replace_OR_add "dhcp_driver" "dhcp_driver = neutron.agent.linux.dhcp.Dnsmasq" "/etc/neutron/dhcp_agent.ini"
+   replace_OR_add "tenant_network_type" "tenant_network_type = gre" "/etc/neutron/plugins/openvswitch/ovs_neutron_plugin.ini"
+   replace_OR_add "enable_tunneling" "enable_tunneling = True" "/etc/neutron/plugins/openvswitch/ovs_neutron_plugin.ini"
+   replace_OR_add "tunnel_id_ranges" "tunnel_id_ranges = 1:1000" "/etc/neutron/plugins/openvswitch/ovs_neutron_plugin.ini"
+   replace_OR_add "integration_bridge" "integration_bridge = br-int" "/etc/neutron/plugins/openvswitch/ovs_neutron_plugin.ini"
+   replace_OR_add "tunnel_bridge" "tunnel_bridge = br-tun" "/etc/neutron/plugins/openvswitch/ovs_neutron_plugin.ini"
+   replace_OR_add "local_ip" "local_ip = $MGMT_IP" "/etc/neutron/plugins/openvswitch/ovs_neutron_plugin.ini"
+   replace_OR_add "firewall_driver" "firewall_driver = neutron.agent.linux.iptables_firewall.OVSHybridIptablesFirewallDriver" "/etc/neutron/plugins/openvswitch/ovs_neutron_plugin.ini"
+   replace_OR_add "sql_connection" "sql_connection=mysql:\/\/neutron:openstacktest@$MGMT_IP\/neutron" "/etc/neutron/plugins/openvswitch/ovs_neutron_plugin.ini"
 }
