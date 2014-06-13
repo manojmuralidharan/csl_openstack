@@ -33,8 +33,7 @@ function updateSectionProperty {
 # If the property is present then updates its value otherwise adds a new key=value  #
 # line at the EOF                                                                   #
 #####################################################################################
-function updateProperty {
- 
+function updateDefaultProperty {
    files=$3
    for file in $files
    do
@@ -42,17 +41,28 @@ function updateProperty {
    done
 }
 
+#####################################################################################
+# Changes the value of property assuming the property is always present in the file.#
+#####################################################################################
+function changeProperty {
+ files=$3
+   for file in $files
+   do
+        sed -i "s/^$1.*$/$2/" $file
+   done
+}
+
 function modify_keystone_conf {
-   updateSectionProperty "\[sql\]" "connection" "/connection = mysql:\/\/keystone:openstackcs@$MGMT_IP\/keystone" /etc/keystone/keystone.conf
-   updateProperty "openstacktest" "openstackcs" "$ROOT_DIR/populate_keystone.sh"
-   updateProperty "HOST_IP" "HOST_IP=$MGMT_IP" "$ROOT_DIR/populate_keystone.sh"
-   updateProperty "EXT_HOST_IP" "EXT_HOST_IP=$EXT_IP" "$ROOT_DIR/populate_keystone.sh"
-   updateProperty "ADMIN_PASSWORD" "ADMIN_PASSWORD=openstackcs" "$ROOT_DIR/populate_keystone.sh"
-   updateProperty "SERVICE_PASSWORD" "SERVICE_PASSWORD=service" "$ROOT_DIR/populate_keystone.sh"
+   updateSectionProperty "\[sql\]" "connection" "connection = mysql:\/\/keystone:openstackcs@$MGMT_IP\/keystone" /etc/keystone/keystone.conf
+   changeProperty "openstacktest" "openstackcs" "$ROOT_DIR/populate_keystone.sh"
+   updateDefaultProperty "HOST_IP" "HOST_IP=$MGMT_IP" "$ROOT_DIR/populate_keystone.sh"
+   updateDefaultProperty "EXT_HOST_IP" "EXT_HOST_IP=$EXT_IP" "$ROOT_DIR/populate_keystone.sh"
+   updateDefaultProperty "ADMIN_PASSWORD" "ADMIN_PASSWORD=openstackcs" "$ROOT_DIR/populate_keystone.sh"
+   updateDefaultProperty "SERVICE_PASSWORD" "SERVICE_PASSWORD=service" "$ROOT_DIR/populate_keystone.sh"
 }
 
 function modify_glance_conf {
-   updateProperty "sql_connection" "sql_connection = mysql:\/\/glance:openstackcs@$MGMT_IP\/glance" "/etc/glance/glance-api.conf /etc/glance/glance-registry.conf"
+   updateDefaultProperty "sql_connection" "sql_connection = mysql:\/\/glance:openstackcs@$MGMT_IP\/glance" "/etc/glance/glance-api.conf /etc/glance/glance-registry.conf"
    updateSectionProperty "\[keystone_authtoken\]" "auth_host" "auth_host = $MGMT_IP" "/etc/glance/glance-api.conf /etc/glance/glance-registry.conf"
    updateSectionProperty "\[keystone_authtoken\]" "auth_port" "auth_port = 35357" "/etc/glance/glance-api.conf /etc/glance/glance-registry.conf"
    updateSectionProperty "\[keystone_authtoken\]" "auth_protocol" "auth_protocol = http" "/etc/glance/glance-api.conf /etc/glance/glance-registry.conf"
@@ -89,28 +99,28 @@ function modify_neutron_conf {
    updateSectionProperty "\[filter:authtoken\]" "paste.filter_factory" "paste.filter_factory = keystoneclient.middleware.auth_token:filter_factory" "/etc/neutron/api-paste.ini"
 
 
-   updateProperty "auth_url" "auth_url = http:\/\/$MGMT_IP:35357\/v2.0" "/etc/neutron/metadata_agent.ini"
-   updateProperty "auth_region" "auth_region = RegionOne" "/etc/neutron/metadata_agent.ini"
-   updateProperty "admin_tenant_name" "admin_tenant_name = service" "/etc/neutron/metadata_agent.ini"
-   updateProperty "admin_user" "admin_user = neutron" "/etc/neutron/metadata_agent.ini"
-   updateProperty "admin_password" "admin_password = openstackcs" "/etc/neutron/metadata_agent.ini"
-   updateProperty "nova_metadata_ip" "nova_metadata_ip = $MGMT_IP" "/etc/neutron/metadata_agent.ini"
-   updateProperty "nova_metadata_port" "nova_metadata_port = 8775" "/etc/neutron/metadata_agent.ini"
-   updateProperty "metadata_proxy_shared_secret" "metadata_proxy_shared_secret = openstackcs" "/etc/neutron/metadata_agent.ini"
+   updateDefaultProperty "auth_url" "auth_url = http:\/\/$MGMT_IP:35357\/v2.0" "/etc/neutron/metadata_agent.ini"
+   updateDefaultProperty "auth_region" "auth_region = RegionOne" "/etc/neutron/metadata_agent.ini"
+   updateDefaultProperty "admin_tenant_name" "admin_tenant_name = service" "/etc/neutron/metadata_agent.ini"
+   updateDefaultProperty "admin_user" "admin_user = neutron" "/etc/neutron/metadata_agent.ini"
+   updateDefaultProperty "admin_password" "admin_password = openstackcs" "/etc/neutron/metadata_agent.ini"
+   updateDefaultProperty "nova_metadata_ip" "nova_metadata_ip = $MGMT_IP" "/etc/neutron/metadata_agent.ini"
+   updateDefaultProperty "nova_metadata_port" "nova_metadata_port = 8775" "/etc/neutron/metadata_agent.ini"
+   updateDefaultProperty "metadata_proxy_shared_secret" "metadata_proxy_shared_secret = openstackcs" "/etc/neutron/metadata_agent.ini"
 
-   updateProperty "interface_driver" "interface_driver = neutron.agent.linux.interface.OVSInterfaceDriver" "/etc/neutron/l3_agent.ini /etc/neutron/dhcp_agent.ini"
-   updateProperty "use_namespaces" "use_namespaces = True" "/etc/neutron/l3_agent.ini /etc/neutron/dhcp_agent.ini"
-   updateProperty "signing_dir" "signing_dir = \/var\/cache\/neutron" "/etc/neutron/l3_agent.ini /etc/neutron/dhcp_agent.ini"
-   updateProperty "admin_tenant_name" "admin_tenant_name = service" "/etc/neutron/l3_agent.ini /etc/neutron/dhcp_agent.ini"
-   updateProperty "admin_user" "admin_user = neutron" "/etc/neutron/l3_agent.ini /etc/neutron/dhcp_agent.ini"
-   updateProperty "admin_password" "admin_password = openstackcs" "/etc/neutron/l3_agent.ini /etc/neutron/dhcp_agent.ini"
-   updateProperty "auth_url" "auth_url = http:\/\/$MGMT_IP:35357\/v2.0" "/etc/neutron/l3_agent.ini /etc/neutron/dhcp_agent.ini"
-   updateProperty "root_helper" "root_helper = sudo neutron-rootwrap \/etc\/neutron\/rootwrap.conf" "/etc/neutron/l3_agent.ini /etc/neutron/dhcp_agent.ini"
-   updateProperty "external_network_bridge" "external_network_bridge = br-ex" "/etc/neutron/l3_agent.ini"
-   updateProperty "l3_agent_manager" "l3_agent_manager = neutron.agent.l3_agent.L3NATAgentWithStateReport" "/etc/neutron/l3_agent.ini"
-   updateProperty "state_path" "state_path = \/var\/lib\/neutron" "/etc/neutron/dhcp_agent.ini"
-   updateProperty "dhcp_driver" "dhcp_driver = neutron.agent.linux.dhcp.Dnsmasq" "/etc/neutron/dhcp_agent.ini"
-   updateProperty "dhcp_agent_manager" "dhcp_agent_manager = neutron.agent.dhcp_agent.DhcpAgentWithStateReport" "/etc/neutron/dhcp_agent.ini"
+   updateDefaultProperty "interface_driver" "interface_driver = neutron.agent.linux.interface.OVSInterfaceDriver" "/etc/neutron/l3_agent.ini /etc/neutron/dhcp_agent.ini"
+   updateDefaultProperty "use_namespaces" "use_namespaces = True" "/etc/neutron/l3_agent.ini /etc/neutron/dhcp_agent.ini"
+   updateDefaultProperty "signing_dir" "signing_dir = \/var\/cache\/neutron" "/etc/neutron/l3_agent.ini /etc/neutron/dhcp_agent.ini"
+   updateDefaultProperty "admin_tenant_name" "admin_tenant_name = service" "/etc/neutron/l3_agent.ini /etc/neutron/dhcp_agent.ini"
+   updateDefaultProperty "admin_user" "admin_user = neutron" "/etc/neutron/l3_agent.ini /etc/neutron/dhcp_agent.ini"
+   updateDefaultProperty "admin_password" "admin_password = openstackcs" "/etc/neutron/l3_agent.ini /etc/neutron/dhcp_agent.ini"
+   updateDefaultProperty "auth_url" "auth_url = http:\/\/$MGMT_IP:35357\/v2.0" "/etc/neutron/l3_agent.ini /etc/neutron/dhcp_agent.ini"
+   updateDefaultProperty "root_helper" "root_helper = sudo neutron-rootwrap \/etc\/neutron\/rootwrap.conf" "/etc/neutron/l3_agent.ini /etc/neutron/dhcp_agent.ini"
+   updateDefaultProperty "external_network_bridge" "external_network_bridge = br-ex" "/etc/neutron/l3_agent.ini"
+   updateDefaultProperty "l3_agent_manager" "l3_agent_manager = neutron.agent.l3_agent.L3NATAgentWithStateReport" "/etc/neutron/l3_agent.ini"
+   updateDefaultProperty "state_path" "state_path = \/var\/lib\/neutron" "/etc/neutron/dhcp_agent.ini"
+   updateDefaultProperty "dhcp_driver" "dhcp_driver = neutron.agent.linux.dhcp.Dnsmasq" "/etc/neutron/dhcp_agent.ini"
+   updateDefaultProperty "dhcp_agent_manager" "dhcp_agent_manager = neutron.agent.dhcp_agent.DhcpAgentWithStateReport" "/etc/neutron/dhcp_agent.ini"
 
    updateSectionProperty "\[ovs\]" "tenant_network_type" "tenant_network_type = gre" "/etc/neutron/plugins/openvswitch/ovs_neutron_plugin.ini"
    updateSectionProperty "\[ovs\]" "enable_tunneling" "enable_tunneling = True" "/etc/neutron/plugins/openvswitch/ovs_neutron_plugin.ini"
@@ -119,5 +129,5 @@ function modify_neutron_conf {
    updateSectionProperty "\[ovs\]" "tunnel_bridge" "tunnel_bridge = br-tun" "/etc/neutron/plugins/openvswitch/ovs_neutron_plugin.ini"
    updateSectionProperty "\[ovs\]" "local_ip" "local_ip = $MGMT_IP" "/etc/neutron/plugins/openvswitch/ovs_neutron_plugin.ini"
    updateSectionProperty "\[securitygroup\]" "firewall_driver" "firewall_driver = neutron.agent.linux.iptables_firewall.OVSHybridIptablesFirewallDriver" "/etc/neutron/plugins/openvswitch/ovs_neutron_plugin.ini"
-   updateSectionProperty "\[database\]" "sql_connection" "sql_connection=mysql:\/\/neutron:openstacktest@$MGMT_IP\/neutron" "/etc/neutron/plugins/openvswitch/ovs_neutron_plugin.ini"
+   updateSectionProperty "\[database\]" "sql_connection" "sql_connection=mysql:\/\/neutron:openstackcs@$MGMT_IP\/neutron" "/etc/neutron/plugins/openvswitch/ovs_neutron_plugin.ini"
 }
