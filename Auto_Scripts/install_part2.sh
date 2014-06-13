@@ -16,28 +16,20 @@ read -p "Enter the Internal IP " MGMT_IP
    
 #Neutron: server& pluggins
 function install_neutron {
-   #apt-get install -y neutron-server neutron-plugin-openvswitch neutron-plugin-openvswitch-agent dnsmasq neutron-dhcp-agent neutron-l3-agent neutron-metadata-agent
+   apt-get install -y neutron-server neutron-plugin-openvswitch neutron-plugin-openvswitch-agent dnsmasq neutron-dhcp-agent neutron-l3-agent neutron-metadata-agent
    service neutron-server stop
    modify_neutron_conf
-   #rm /var/lib/neutron/neutron.sqlite
+   rm /var/lib/neutron/neutron.sqlite
    for i in $( ls /etc/init.d/neutron-* ); do service `basename $i` restart; done
 }
 
 #Nova
 function install_nova {
    apt-get install -y nova-api nova-cert novnc nova-consoleauth nova-scheduler nova-novncproxy nova-doc nova-conductor nova-compute-kvm
-   vi /etc/nova/nova-compute.conf 
-   cp /etc/nova/nova-compute.conf /etc/nova/nova-compute.conf.lfc 
-   vi /etc/nova/nova-compute.conf
-   vi /etc/nova/api-paste.ini 
-   vi /etc/nova/nova.conf 
-   cp /etc/nova/nova.conf /etc/nova/nova.conf.lfv
-   cp /etc/nova/nova.conf.lfv /etc/nova/nova.conf.lfc
-   vi /etc/nova/nova.conf
+   modify_nova_conf 
    for i in $( ls /etc/init.d/nova-* ); do service `basename $i` restart; done
    rm /var/lib/nova/nova.sqlite
    nova-manage db sync
-   #nova-manage service list
 }
 
 #Cinder
@@ -75,8 +67,8 @@ function install_swift {
 
 #Horizon
 function install_horizon  {
-   apt-fast -y install openstack-dashboard memcached && dpkg --purge openstack-dashboard-ubuntu-theme
-#This might fail---you need to add an entry "ServerName 127.0.1.1" in the file /etc/apache2/apache2.conf. I put 127.0.1.1 here which appears in my /etc/hosts representing my hostname
+   apt-get -y install openstack-dashboard memcached && dpkg --purge openstack-dashboard-ubuntu-theme
+   modify_horizon_conf
    service apache2 restart; service memcached restart
 }
 
@@ -84,12 +76,11 @@ function install_horizon  {
 function main {
 
    install_neutron
-   #install_nova
+   install_nova
    #install_cinder
    #install_swift
-   #install_horizon
+   install_horizon
 
 }
 
 main 2>&1
-

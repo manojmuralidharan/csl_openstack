@@ -1,4 +1,4 @@
-#!/bin/bash
+#!/bin/bash 
 
 #####################################################################################
 # Updates a property under the specified section. If the section is not present     #
@@ -37,7 +37,7 @@ function updateDefaultProperty {
    files=$3
    for file in $files
    do
-	grep -q "^$1" $file && sed -i "s/^$1.*$/$2/" $file || echo $2  | sed s'@\\@@g' >> $3
+	grep -q "^$1" $file && sed -i "s/^$1.*$/$2/" $file || echo $2  | sed s'@\\@@g' >> $file
    done
 }
 
@@ -58,7 +58,7 @@ function modify_keystone_conf {
    updateDefaultProperty "HOST_IP" "HOST_IP=$MGMT_IP" "$ROOT_DIR/populate_keystone.sh"
    updateDefaultProperty "EXT_HOST_IP" "EXT_HOST_IP=$EXT_IP" "$ROOT_DIR/populate_keystone.sh"
    updateDefaultProperty "ADMIN_PASSWORD" "ADMIN_PASSWORD=openstackcs" "$ROOT_DIR/populate_keystone.sh"
-   updateDefaultProperty "SERVICE_PASSWORD" "SERVICE_PASSWORD=service" "$ROOT_DIR/populate_keystone.sh"
+   updateDefaultProperty "SERVICE_PASSWORD" "SERVICE_PASSWORD=openstackcs" "$ROOT_DIR/populate_keystone.sh"
 }
 
 function modify_glance_conf {
@@ -75,12 +75,12 @@ function modify_glance_conf {
    updateSectionProperty "\[filter:authtoken\]" "admin_tenant_name" "admin_tenant_name = service" "/etc/glance/glance-api-paste.ini /etc/glance/glance-registry-paste.ini"
    updateSectionProperty "\[filter:authtoken\]" "admin_user" "admin_user = glance" "/etc/glance/glance-api-paste.ini /etc/glance/glance-registry-paste.ini"
    updateSectionProperty "\[filter:authtoken\]" "admin_password" "admin_password = openstackcs" "/etc/glance/glance-api-paste.ini /etc/glance/glance-registry-paste.ini"
-   updateSectionProperty "\[filter:authtoken\]" "paste.filter_factory" "paste.filter_factory = keystoneclient.middleware.auth_token:filter_factory/g" "/etc/glance/glance-api-paste.ini /etc/glance/glance-registry-paste.ini"
+   updateSectionProperty "\[filter:authtoken\]" "paste.filter_factory" "paste.filter_factory = keystoneclient.middleware.auth_token:filter_factory" "/etc/glance/glance-api-paste.ini /etc/glance/glance-registry-paste.ini"
 }
 
 function modify_neutron_conf {
 #do the necessary /etc/network/interfaces and /etc/resolv.conf modificatins manually
-
+   
    updateSectionProperty "\[keystone_authtoken\]" "auth_host" "auth_host = $MGMT_IP" "/etc/neutron/neutron.conf" 
    updateSectionProperty "\[keystone_authtoken\]" "auth_port" "auth_port = 35357" "/etc/neutron/neutron.conf "
    updateSectionProperty "\[keystone_authtoken\]" "auth_protocol" "auth_protocol = http" "/etc/neutron/neutron.conf"
@@ -130,4 +130,48 @@ function modify_neutron_conf {
    updateSectionProperty "\[ovs\]" "local_ip" "local_ip = $MGMT_IP" "/etc/neutron/plugins/openvswitch/ovs_neutron_plugin.ini"
    updateSectionProperty "\[securitygroup\]" "firewall_driver" "firewall_driver = neutron.agent.linux.iptables_firewall.OVSHybridIptablesFirewallDriver" "/etc/neutron/plugins/openvswitch/ovs_neutron_plugin.ini"
    updateSectionProperty "\[database\]" "sql_connection" "sql_connection=mysql:\/\/neutron:openstackcs@$MGMT_IP\/neutron" "/etc/neutron/plugins/openvswitch/ovs_neutron_plugin.ini"
+}
+
+function modify_nova_conf {
+
+   MGMT_IP=192.168.7.49
+   EXT_IP=192.168.7.113
+   cp /etc/nova/nova.conf /etc/nova/nova.conf.lfc
+   cp /etc/nova/nova-compute.conf /etc/nova/nova-compute.conf.lfc
+   cp /etc/nova/api-paste.ini /etc/nova/api-paste.ini.lfc
+   cp nova.conf /etc/nova/nova.conf
+   
+   changeProperty "nova_url" "nova_url=http:\/\/$MGMT_IP:8774\/v1.1\/" "/etc/nova/nova.conf"
+   changeProperty "sql_connection" "sql_connection=mysql:\/\/nova:openstackcs@$MGMT_IP\/nova" "/etc/nova/nova.conf"
+   changeProperty "glance_api_servers" "glance_api_servers=$MGMT_IP:9292" "/etc/nova/nova.conf"
+   changeProperty "novncproxy_base_url" "novncproxy_base_url=http:\/\/$EXT_IP:6080\/vnc_auto.html" "/etc/nova/nova.conf"
+   changeProperty "vncserver_proxyclient_address" "vncserver_proxyclient_address=$MGMT_IP" "/etc/nova/nova.conf"
+   changeProperty "neutron_url" "neutron_url=http:\/\/$MGMT_IP:9696" "/etc/nova/nova.conf"
+   changeProperty "neutron_admin_auth_url" "neutron_admin_auth_url=http:\/\/$MGMT_IP:35357\/v2.0" "/etc/nova/nova.conf"
+   changeProperty "metadata_host" "metadata_host = $MGMT_IP" "/etc/nova/nova.conf"
+   changeProperty "metadata_listen" "metadata_listen = $MGMT_IP" "/etc/nova/nova.conf"
+   changeProperty "openstacktest" "openstackcs" "/etc/nova/nova.conf"
+
+   updateSectionProperty "\[DEFAULT\]" "libvirt_type" "libvirt_type=kvm" "/etc/nova/nova-compute.conf"
+   updateSectionProperty "\[DEFAULT\]" "libvirt_ovs_bridge" "libvirt_ovs_bridge=br-int" "/etc/nova/nova-compute.conf"
+   updateSectionProperty "\[DEFAULT\]" "libvirt_vif_type" "libvirt_vif_type=ethernet" "/etc/nova/nova-compute.conf"
+   updateSectionProperty "\[DEFAULT\]" "libvirt_vif_driver" "libvirt_vif_driver=nova.virt.libvirt.vif.LibvirtHybridOVSBridgeDriver" "/etc/nova/nova-compute.conf"
+   updateSectionProperty "\[DEFAULT\]" "libvirt_use_virtio_for_bridges" "libvirt_use_virtio_for_bridges=True" "/etc/nova/nova-compute.conf"
+
+   updateSectionProperty "\[filter:authtoken\]" "auth_host" "auth_host = $MGMT_IP" "/etc/nova/api-paste.ini"
+   updateSectionProperty "\[filter:authtoken\]" "auth_port" "auth_port = 35357" "/etc/nova/api-paste.ini"
+   updateSectionProperty "\[filter:authtoken\]" "auth_protocol" "auth_protocol = http" "/etc/nova/api-paste.ini"
+   updateSectionProperty "\[filter:authtoken\]" "admin_tenant_name" "admin_tenant_name = service" "/etc/nova/api-paste.ini"
+   updateSectionProperty "\[filter:authtoken\]" "admin_user" "admin_user = nova" "/etc/nova/api-paste.ini"
+   updateSectionProperty "\[filter:authtoken\]" "admin_password" "admin_password = openstackcs" "/etc/nova/api-paste.ini"
+   updateSectionProperty "\[filter:authtoken\]" "paste.filter_factory" "paste.filter_factory = keystoneclient.middleware.auth_token:filter_factory" "/etc/nova/api-paste.ini"
+   updateSectionProperty "\[filter:authtoken\]" "signing_dirname" "signing_dirname = /tmp/keystone-signing-nova" "/etc/nova/api-paste.ini"
+   updateSectionProperty "\[filter:authtoken\]" "auth_version" "auth_version = v2.0" "/etc/nova/api-paste.ini"
+
+}
+
+function modify_horizon_conf {
+
+ echo "ServerName 127.0.1.1" >> /etc/apache2/apache2.conf
+
 }
