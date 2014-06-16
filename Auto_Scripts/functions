@@ -52,6 +52,10 @@ function changeProperty {
    done
 }
 
+function modify_mysql_conf {
+   changeProperty "openstackcs" "$OPENSTACK_PW" "$ROOT_DIR/populate_databases.sh"
+}
+
 function modify_keystone_conf {
    updateSectionProperty "\[sql\]" "connection" "connection = mysql:\/\/keystone:$OPENSTACK_PW@$MGMT_IP\/keystone" /etc/keystone/keystone.conf
    changeProperty "openstacktest" "$OPENSTACK_PW" "$ROOT_DIR/populate_keystone.sh"
