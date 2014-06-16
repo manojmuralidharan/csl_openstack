@@ -149,7 +149,7 @@ function modify_nova_conf {
    changeProperty "neutron_url" "neutron_url=http:\/\/$MGMT_IP:9696" "/etc/nova/nova.conf"
    changeProperty "neutron_admin_auth_url" "neutron_admin_auth_url=http:\/\/$MGMT_IP:35357\/v2.0" "/etc/nova/nova.conf"
    changeProperty "metadata_host" "metadata_host = $MGMT_IP" "/etc/nova/nova.conf"
-   changeProperty "metadata_listen" "metadata_listen = $MGMT_IP" "/etc/nova/nova.conf"
+   changeProperty "metadata_listen =" "metadata_listen = $MGMT_IP" "/etc/nova/nova.conf"
    changeProperty "openstacktest" "$OPENSTACK_PW" "/etc/nova/nova.conf"
 
    updateSectionProperty "\[DEFAULT\]" "libvirt_type" "libvirt_type=kvm" "/etc/nova/nova-compute.conf"
