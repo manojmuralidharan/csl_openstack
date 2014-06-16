@@ -19,6 +19,7 @@ fi
 ROOT_DIR=`pwd`
 read -p "Enter the External IP " EXT_IP
 read -p "Enter the Internal IP " MGMT_IP 
+read -p "Enter the OS password " OPENSTACK_PW 
 
 . functions
 
@@ -54,9 +55,9 @@ function install_keystone {
    service keystone restart
    keystone-manage db_sync
    ./populate_keystone.sh 
-   echo -e 'export OS_TENANT_NAME=admin\nexport OS_USERNAME=admin\nexport OS_PASSWORD=openstackcs\nexport OS_AUTH_URL="http://'$EXT_IP':5000/v2.0/"' > ~/.keystonerc
+   echo -e 'export OS_TENANT_NAME=admin\nexport OS_USERNAME=admin\nexport OS_PASSWORD=$OPENSTACK_PW\nexport OS_AUTH_URL="http://'$EXT_IP':5000/v2.0/"' > ~/.keystonerc
    source ~/.keystonerc 
-   #Treat keystonerc as mentioned in the wiki
+   echo "source ~/.keystonerc" >> ~/.bashrc
 }
 
 #Glance

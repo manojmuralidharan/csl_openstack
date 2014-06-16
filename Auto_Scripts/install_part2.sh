@@ -11,6 +11,7 @@ fi
 ROOT_DIR=`pwd`
 read -p "Enter the External IP " EXT_IP
 read -p "Enter the Internal IP " MGMT_IP
+read -p "Enter the swift partition " SWIFT_PART
    
 . functions
    
@@ -40,29 +41,7 @@ function install_cinder {
 #Swift
 function install_swift {
    apt-get -y install swift swift-account swift-container swift-object swift-proxy openssh-server memcached python-pip python-netifaces python-xattr python-memcache xfsprogs python-keystoneclient python-swiftclient python-webob git
-   apt-get install -f --fix-missing
-   apt-get update
-   apt-get -y install swift swift-account swift-container swift-object swift-proxy openssh-server memcached python-pip python-netifaces python-xattr python-memcache xfsprogs python-keystoneclient python-swiftclient python-webob git
-   mkdir -p /etc/swift && chown -R swift:swift /etc/swift/
-   mkdir -p /srv/node
-   vi /etc/swift/swift.conf
-   chown -R swift:swift /srv/node
-   openssl req -new -x509 -nodes -out /etc/swift/cert.crt -keyout /etc/swift/cert.key
-   cd /opt/openstack/install_scripts/
-   git clone https://github.com/openstack/swift.git && cd swift && python setup.py install
-   vi /etc/swift/proxy-se
-   vi /etc/swift/proxy-server.conf
-   mkdir -p /home/swift/keystone-signing && chown -R swift:swift /home/swift/keystone-signing
-   cd /etc/swift/
-   swift-ring-builder account.builder create 18 3 1
-   swift-ring-builder container.builder create 18 3 1
-   swift-ring-builder object.builder create 18 3 1
-   swift-ring-builder account.builder add z1-192.168.8.70:6002/sda4 100
-   swift-ring-builder container.builder add z1-192.168.8.70:6001/sda4 100
-   swift-ring-builder object.builder add z1-192.168.8.70:6000/sda4 100
-   swift-ring-builder account.builder rebalance
-   swift-ring-builder container.builder rebalance
-   swift-ring-builder object.builder rebalance
+   modify_swift_conf
 }
 
 #Horizon
@@ -77,10 +56,9 @@ function main {
 
    install_neutron
    install_nova
-   #install_cinder
-   #install_swift
+   install_cinder
+   install_swift
    install_horizon
-
 }
 
 main 2>&1

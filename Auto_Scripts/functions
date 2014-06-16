@@ -53,28 +53,28 @@ function changeProperty {
 }
 
 function modify_keystone_conf {
-   updateSectionProperty "\[sql\]" "connection" "connection = mysql:\/\/keystone:openstackcs@$MGMT_IP\/keystone" /etc/keystone/keystone.conf
-   changeProperty "openstacktest" "openstackcs" "$ROOT_DIR/populate_keystone.sh"
+   updateSectionProperty "\[sql\]" "connection" "connection = mysql:\/\/keystone:$OPENSTACK_PW@$MGMT_IP\/keystone" /etc/keystone/keystone.conf
+   changeProperty "openstacktest" "$OPENSTACK_PW" "$ROOT_DIR/populate_keystone.sh"
    updateDefaultProperty "HOST_IP" "HOST_IP=$MGMT_IP" "$ROOT_DIR/populate_keystone.sh"
    updateDefaultProperty "EXT_HOST_IP" "EXT_HOST_IP=$EXT_IP" "$ROOT_DIR/populate_keystone.sh"
-   updateDefaultProperty "ADMIN_PASSWORD" "ADMIN_PASSWORD=openstackcs" "$ROOT_DIR/populate_keystone.sh"
-   updateDefaultProperty "SERVICE_PASSWORD" "SERVICE_PASSWORD=openstackcs" "$ROOT_DIR/populate_keystone.sh"
+   updateDefaultProperty "ADMIN_PASSWORD" "ADMIN_PASSWORD=$OPENSTACK_PW" "$ROOT_DIR/populate_keystone.sh"
+   updateDefaultProperty "SERVICE_PASSWORD" "SERVICE_PASSWORD=$OPENSTACK_PW" "$ROOT_DIR/populate_keystone.sh"
 }
 
 function modify_glance_conf {
-   updateDefaultProperty "sql_connection" "sql_connection = mysql:\/\/glance:openstackcs@$MGMT_IP\/glance" "/etc/glance/glance-api.conf /etc/glance/glance-registry.conf"
+   updateDefaultProperty "sql_connection" "sql_connection = mysql:\/\/glance:$OPENSTACK_PW@$MGMT_IP\/glance" "/etc/glance/glance-api.conf /etc/glance/glance-registry.conf"
    updateSectionProperty "\[keystone_authtoken\]" "auth_host" "auth_host = $MGMT_IP" "/etc/glance/glance-api.conf /etc/glance/glance-registry.conf"
    updateSectionProperty "\[keystone_authtoken\]" "auth_port" "auth_port = 35357" "/etc/glance/glance-api.conf /etc/glance/glance-registry.conf"
    updateSectionProperty "\[keystone_authtoken\]" "auth_protocol" "auth_protocol = http" "/etc/glance/glance-api.conf /etc/glance/glance-registry.conf"
    updateSectionProperty "\[keystone_authtoken\]" "admin_tenant_name" "admin_tenant_name = service" "/etc/glance/glance-api.conf /etc/glance/glance-registry.conf"
    updateSectionProperty "\[keystone_authtoken\]" "admin_user" "admin_user = glance" "/etc/glance/glance-api.conf /etc/glance/glance-registry.conf"
-   updateSectionProperty "\[keystone_authtoken\]" "admin_password" "admin_password = openstackcs" "/etc/glance/glance-api.conf /etc/glance/glance-registry.conf"
+   updateSectionProperty "\[keystone_authtoken\]" "admin_password" "admin_password = $OPENSTACK_PW" "/etc/glance/glance-api.conf /etc/glance/glance-registry.conf"
    updateSectionProperty "\[paste_deploy\]" "flavor" "flavor = keystone" "/etc/glance/glance-api.conf /etc/glance/glance-registry.conf"
 
    updateSectionProperty "\[filter:authtoken\]" "auth_host" "auth_host = $MGMT_IP" "/etc/glance/glance-api-paste.ini /etc/glance/glance-registry-paste.ini"
    updateSectionProperty "\[filter:authtoken\]" "admin_tenant_name" "admin_tenant_name = service" "/etc/glance/glance-api-paste.ini /etc/glance/glance-registry-paste.ini"
    updateSectionProperty "\[filter:authtoken\]" "admin_user" "admin_user = glance" "/etc/glance/glance-api-paste.ini /etc/glance/glance-registry-paste.ini"
-   updateSectionProperty "\[filter:authtoken\]" "admin_password" "admin_password = openstackcs" "/etc/glance/glance-api-paste.ini /etc/glance/glance-registry-paste.ini"
+   updateSectionProperty "\[filter:authtoken\]" "admin_password" "admin_password = $OPENSTACK_PW" "/etc/glance/glance-api-paste.ini /etc/glance/glance-registry-paste.ini"
    updateSectionProperty "\[filter:authtoken\]" "paste.filter_factory" "paste.filter_factory = keystoneclient.middleware.auth_token:filter_factory" "/etc/glance/glance-api-paste.ini /etc/glance/glance-registry-paste.ini"
 }
 
@@ -86,16 +86,16 @@ function modify_neutron_conf {
    updateSectionProperty "\[keystone_authtoken\]" "auth_protocol" "auth_protocol = http" "/etc/neutron/neutron.conf"
    updateSectionProperty "\[keystone_authtoken\]" "admin_tenant_name" "admin_tenant_name = service" "/etc/neutron/neutron.conf"
    updateSectionProperty "\[keystone_authtoken\]" "admin_user" "admin_user = neutron" "/etc/neutron/neutron.conf"
-   updateSectionProperty "\[keystone_authtoken\]" "admin_password" "admin_password = openstackcs" "/etc/neutron/neutron.conf"
+   updateSectionProperty "\[keystone_authtoken\]" "admin_password" "admin_password = $OPENSTACK_PW" "/etc/neutron/neutron.conf"
    updateSectionProperty "\[keystone_authtoken\]" "signing_dir" "signing_dir = \$state_path\/keystone-signing" "/etc/neutron/neutron.conf"
-   updateSectionProperty "\[database\]" "connection" "connection = mysql:\/\/neutron:openstackcs@$MGMT_IP\/neutron" "/etc/neutron/neutron.conf"
+   updateSectionProperty "\[database\]" "connection" "connection = mysql:\/\/neutron:$OPENSTACK_PW@$MGMT_IP\/neutron" "/etc/neutron/neutron.conf"
    
    updateSectionProperty "\[filter:authtoken\]" "auth_host" "auth_host = $MGMT_IP" "/etc/neutron/api-paste.ini"
    updateSectionProperty "\[filter:authtoken\]" "auth_port" "auth_port = 35357" "/etc/neutron/api-paste.ini"
    updateSectionProperty "\[filter:authtoken\]" "auth_protocol" "auth_protocol = http" "/etc/neutron/api-paste.ini"
    updateSectionProperty "\[filter:authtoken\]" "admin_tenant_name" "admin_tenant_name = service" "/etc/neutron/api-paste.ini"
    updateSectionProperty "\[filter:authtoken\]" "admin_user" "admin_user = neutron" "/etc/neutron/api-paste.ini"
-   updateSectionProperty "\[filter:authtoken\]" "admin_password" "admin_password = openstackcs" "/etc/neutron/api-paste.ini"
+   updateSectionProperty "\[filter:authtoken\]" "admin_password" "admin_password = $OPENSTACK_PW" "/etc/neutron/api-paste.ini"
    updateSectionProperty "\[filter:authtoken\]" "paste.filter_factory" "paste.filter_factory = keystoneclient.middleware.auth_token:filter_factory" "/etc/neutron/api-paste.ini"
 
 
@@ -103,17 +103,17 @@ function modify_neutron_conf {
    updateDefaultProperty "auth_region" "auth_region = RegionOne" "/etc/neutron/metadata_agent.ini"
    updateDefaultProperty "admin_tenant_name" "admin_tenant_name = service" "/etc/neutron/metadata_agent.ini"
    updateDefaultProperty "admin_user" "admin_user = neutron" "/etc/neutron/metadata_agent.ini"
-   updateDefaultProperty "admin_password" "admin_password = openstackcs" "/etc/neutron/metadata_agent.ini"
+   updateDefaultProperty "admin_password" "admin_password = $OPENSTACK_PW" "/etc/neutron/metadata_agent.ini"
    updateDefaultProperty "nova_metadata_ip" "nova_metadata_ip = $MGMT_IP" "/etc/neutron/metadata_agent.ini"
    updateDefaultProperty "nova_metadata_port" "nova_metadata_port = 8775" "/etc/neutron/metadata_agent.ini"
-   updateDefaultProperty "metadata_proxy_shared_secret" "metadata_proxy_shared_secret = openstackcs" "/etc/neutron/metadata_agent.ini"
+   updateDefaultProperty "metadata_proxy_shared_secret" "metadata_proxy_shared_secret = $OPENSTACK_PW" "/etc/neutron/metadata_agent.ini"
 
    updateDefaultProperty "interface_driver" "interface_driver = neutron.agent.linux.interface.OVSInterfaceDriver" "/etc/neutron/l3_agent.ini /etc/neutron/dhcp_agent.ini"
    updateDefaultProperty "use_namespaces" "use_namespaces = True" "/etc/neutron/l3_agent.ini /etc/neutron/dhcp_agent.ini"
    updateDefaultProperty "signing_dir" "signing_dir = \/var\/cache\/neutron" "/etc/neutron/l3_agent.ini /etc/neutron/dhcp_agent.ini"
    updateDefaultProperty "admin_tenant_name" "admin_tenant_name = service" "/etc/neutron/l3_agent.ini /etc/neutron/dhcp_agent.ini"
    updateDefaultProperty "admin_user" "admin_user = neutron" "/etc/neutron/l3_agent.ini /etc/neutron/dhcp_agent.ini"
-   updateDefaultProperty "admin_password" "admin_password = openstackcs" "/etc/neutron/l3_agent.ini /etc/neutron/dhcp_agent.ini"
+   updateDefaultProperty "admin_password" "admin_password = $OPENSTACK_PW" "/etc/neutron/l3_agent.ini /etc/neutron/dhcp_agent.ini"
    updateDefaultProperty "auth_url" "auth_url = http:\/\/$MGMT_IP:35357\/v2.0" "/etc/neutron/l3_agent.ini /etc/neutron/dhcp_agent.ini"
    updateDefaultProperty "root_helper" "root_helper = sudo neutron-rootwrap \/etc\/neutron\/rootwrap.conf" "/etc/neutron/l3_agent.ini /etc/neutron/dhcp_agent.ini"
    updateDefaultProperty "external_network_bridge" "external_network_bridge = br-ex" "/etc/neutron/l3_agent.ini"
@@ -129,7 +129,7 @@ function modify_neutron_conf {
    updateSectionProperty "\[ovs\]" "tunnel_bridge" "tunnel_bridge = br-tun" "/etc/neutron/plugins/openvswitch/ovs_neutron_plugin.ini"
    updateSectionProperty "\[ovs\]" "local_ip" "local_ip = $MGMT_IP" "/etc/neutron/plugins/openvswitch/ovs_neutron_plugin.ini"
    updateSectionProperty "\[securitygroup\]" "firewall_driver" "firewall_driver = neutron.agent.linux.iptables_firewall.OVSHybridIptablesFirewallDriver" "/etc/neutron/plugins/openvswitch/ovs_neutron_plugin.ini"
-   updateSectionProperty "\[database\]" "sql_connection" "sql_connection=mysql:\/\/neutron:openstackcs@$MGMT_IP\/neutron" "/etc/neutron/plugins/openvswitch/ovs_neutron_plugin.ini"
+   updateSectionProperty "\[database\]" "sql_connection" "sql_connection=mysql:\/\/neutron:$OPENSTACK_PW@$MGMT_IP\/neutron" "/etc/neutron/plugins/openvswitch/ovs_neutron_plugin.ini"
 }
 
 function modify_nova_conf {
@@ -142,7 +142,7 @@ function modify_nova_conf {
    cp nova.conf /etc/nova/nova.conf
    
    changeProperty "nova_url" "nova_url=http:\/\/$MGMT_IP:8774\/v1.1\/" "/etc/nova/nova.conf"
-   changeProperty "sql_connection" "sql_connection=mysql:\/\/nova:openstackcs@$MGMT_IP\/nova" "/etc/nova/nova.conf"
+   changeProperty "sql_connection" "sql_connection=mysql:\/\/nova:$OPENSTACK_PW@$MGMT_IP\/nova" "/etc/nova/nova.conf"
    changeProperty "glance_api_servers" "glance_api_servers=$MGMT_IP:9292" "/etc/nova/nova.conf"
    changeProperty "novncproxy_base_url" "novncproxy_base_url=http:\/\/$EXT_IP:6080\/vnc_auto.html" "/etc/nova/nova.conf"
    changeProperty "vncserver_proxyclient_address" "vncserver_proxyclient_address=$MGMT_IP" "/etc/nova/nova.conf"
@@ -150,7 +150,7 @@ function modify_nova_conf {
    changeProperty "neutron_admin_auth_url" "neutron_admin_auth_url=http:\/\/$MGMT_IP:35357\/v2.0" "/etc/nova/nova.conf"
    changeProperty "metadata_host" "metadata_host = $MGMT_IP" "/etc/nova/nova.conf"
    changeProperty "metadata_listen" "metadata_listen = $MGMT_IP" "/etc/nova/nova.conf"
-   changeProperty "openstacktest" "openstackcs" "/etc/nova/nova.conf"
+   changeProperty "openstacktest" "$OPENSTACK_PW" "/etc/nova/nova.conf"
 
    updateSectionProperty "\[DEFAULT\]" "libvirt_type" "libvirt_type=kvm" "/etc/nova/nova-compute.conf"
    updateSectionProperty "\[DEFAULT\]" "libvirt_ovs_bridge" "libvirt_ovs_bridge=br-int" "/etc/nova/nova-compute.conf"
@@ -163,10 +163,43 @@ function modify_nova_conf {
    updateSectionProperty "\[filter:authtoken\]" "auth_protocol" "auth_protocol = http" "/etc/nova/api-paste.ini"
    updateSectionProperty "\[filter:authtoken\]" "admin_tenant_name" "admin_tenant_name = service" "/etc/nova/api-paste.ini"
    updateSectionProperty "\[filter:authtoken\]" "admin_user" "admin_user = nova" "/etc/nova/api-paste.ini"
-   updateSectionProperty "\[filter:authtoken\]" "admin_password" "admin_password = openstackcs" "/etc/nova/api-paste.ini"
+   updateSectionProperty "\[filter:authtoken\]" "admin_password" "admin_password = $OPENSTACK_PW" "/etc/nova/api-paste.ini"
    updateSectionProperty "\[filter:authtoken\]" "paste.filter_factory" "paste.filter_factory = keystoneclient.middleware.auth_token:filter_factory" "/etc/nova/api-paste.ini"
    updateSectionProperty "\[filter:authtoken\]" "signing_dirname" "signing_dirname = /tmp/keystone-signing-nova" "/etc/nova/api-paste.ini"
    updateSectionProperty "\[filter:authtoken\]" "auth_version" "auth_version = v2.0" "/etc/nova/api-paste.ini"
+
+}
+
+function modify_swift_conf {
+
+   mkdir -p /etc/swift && chown -R swift:swift /etc/swift/
+   mkdir -p /srv/node
+   touch /etc/swift/swift.conf
+   updateSectionProperty "\[swift-hash\]" "swift_hash_path_suffix" "swift_hash_path_suffix = $OPENSTACK_PW" "/etc/swift/swift.conf"
+   chown -R swift:swift /srv/node
+   openssl req -new -x509 -nodes -out /etc/swift/cert.crt -keyout /etc/swift/cert.key
+   git clone https://github.com/openstack/swift.git && cd swift && python setup.py install
+   cp proxy-server.conf /etc/swift/proxy-server.conf
+   updateSectionProperty "\[filter:authtoken\]" "auth_host" "auth_host = $MGMT_IP" "/etc/swift/proxy-server.conf"
+   updateSectionProperty "\[filter:authtoken\]" "auth_port" "auth_port = 35357" "/etc/swift/proxy-server.conf"
+   updateSectionProperty "\[filter:authtoken\]" "auth_protocol" "auth_protocol = http" "/etc/swift/proxy-server.conf"
+   updateSectionProperty "\[filter:authtoken\]" "admin_tenant_name" "admin_tenant_name = service" "/etc/swift/proxy-server.conf"
+   updateSectionProperty "\[filter:authtoken\]" "admin_user" "admin_user = swift" "/etc/swift/proxy-server.conf"
+   updateSectionProperty "\[filter:authtoken\]" "admin_password" "admin_password = $OPENSTACK_PW" "/etc/swift/proxy-server.conf"
+   updateSectionProperty "\[filter:authtoken\]" "admin_token" "admin_token = $OPENSTACK_PW" "/etc/swift/proxy-server.conf"
+   updateSectionProperty "\[filter:authtoken\]" "paste.filter_factory" "paste.filter_factory = keystoneclient.middleware.auth_token:filter_factory" "/etc/swift/proxy-server.conf"
+   updateSectionProperty "\[filter:authtoken\]" "signing_dir" "signing_dir = /home/swift/keystone-signing" "/etc/swift/proxy-server.conf"
+   mkdir -p /home/swift/keystone-signing && chown -R swift:swift /home/swift/keystone-signing
+   cd /etc/swift/
+   swift-ring-builder account.builder create 18 3 1
+   swift-ring-builder container.builder create 18 3 1
+   swift-ring-builder object.builder create 18 3 1
+   swift-ring-builder account.builder add z1-$MGMT_IP:6002/$SWIFT_PART 100
+   swift-ring-builder container.builder add z1-$MGMT_IP:6001/$SWIFT_PART 100
+   swift-ring-builder object.builder add z1-$MGMT_IP:6000/$SWIFT_PART 100
+   swift-ring-builder account.builder rebalance
+   swift-ring-builder container.builder rebalance
+   swift-ring-builder object.builder rebalance
 
 }
 
