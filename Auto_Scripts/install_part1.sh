@@ -35,6 +35,7 @@ function install_mysql {
    #Modify conf, restart and poputele db
    sed -i 's/127.0.0.1/0.0.0.0/g' /etc/mysql/my.cnf
    service mysql restart
+   modify_mysql_conf
    chmod +x populate_database.sh
    ./populate_database.sh
 }
@@ -55,7 +56,7 @@ function install_keystone {
    service keystone restart
    keystone-manage db_sync
    ./populate_keystone.sh 
-   echo -e 'export OS_TENANT_NAME=admin\nexport OS_USERNAME=admin\nexport OS_PASSWORD=$OPENSTACK_PW\nexport OS_AUTH_URL="http://'$EXT_IP':5000/v2.0/"' > ~/.keystonerc
+   echo -e 'export OS_TENANT_NAME=admin\nexport OS_USERNAME=admin\nexport OS_PASSWORD='$OPENSTACK_PW'\nexport OS_AUTH_URL="http://'$EXT_IP':5000/v2.0/"' > ~/.keystonerc
    source ~/.keystonerc 
    echo "source ~/.keystonerc" >> ~/.bashrc
 }

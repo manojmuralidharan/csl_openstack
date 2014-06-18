@@ -12,6 +12,7 @@ ROOT_DIR=`pwd`
 read -p "Enter the External IP " EXT_IP
 read -p "Enter the Internal IP " MGMT_IP
 read -p "Enter the swift partition " SWIFT_PART
+read -p "Enter the OS password " OPENSTACK_PW
    
 . functions
    
@@ -22,6 +23,7 @@ function install_neutron {
    modify_neutron_conf
    rm /var/lib/neutron/neutron.sqlite
    for i in $( ls /etc/init.d/neutron-* ); do service `basename $i` restart; done
+   service dnsmasq restart
 }
 
 #Nova
@@ -31,6 +33,7 @@ function install_nova {
    for i in $( ls /etc/init.d/nova-* ); do service `basename $i` restart; done
    rm /var/lib/nova/nova.sqlite
    nova-manage db sync
+   for i in $( ls /etc/init.d/nova-* ); do service `basename $i` restart; done
 }
 
 #Cinder
