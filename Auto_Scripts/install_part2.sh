@@ -17,7 +17,7 @@ read -p "Enter the OS password " OPENSTACK_PW
 . functions
    
 #Neutron: server& pluggins
-function install_neutron {
+function neutron {
    apt-get install -y neutron-server neutron-plugin-openvswitch neutron-plugin-openvswitch-agent dnsmasq neutron-dhcp-agent neutron-l3-agent neutron-metadata-agent
    service neutron-server stop
    modify_neutron_conf
@@ -27,7 +27,7 @@ function install_neutron {
 }
 
 #Nova
-function install_nova {
+function nova {
    apt-get install -y nova-api nova-cert novnc nova-consoleauth nova-scheduler nova-novncproxy nova-doc nova-conductor nova-compute-kvm
    modify_nova_conf 
    for i in $( ls /etc/init.d/nova-* ); do service `basename $i` restart; done
@@ -37,30 +37,45 @@ function install_nova {
 }
 
 #Cinder
-function install_cinder {
+function cinder {
    apt-get install -y cinder-api cinder-scheduler cinder-volume
 }
 
 #Swift
-function install_swift {
+function swift {
    apt-get -y install swift swift-account swift-container swift-object swift-proxy openssh-server memcached python-pip python-netifaces python-xattr python-memcache xfsprogs python-keystoneclient python-swiftclient python-webob git
    modify_swift_conf
 }
 
 #Horizon
-function install_horizon  {
+function horizon  {
    apt-get -y install openstack-dashboard memcached && dpkg --purge openstack-dashboard-ubuntu-theme
    modify_horizon_conf
    service apache2 restart; service memcached restart
 }
 
 #Execution begins here
-function main {
-   install_neutron
-   install_nova
-   install_cinder
-   install_swift
-   install_horizon
+function all {
+   neutron
+   nova
+   cinder
+   swift
+   horizon
 }
 
-main 2>&1
+function help {
+  echo Usage
+  echo "./install_part1.sh <option> where option can be one of the below"
+  echo update
+  echo mysql
+  echo keystone
+  echo glance
+  echo ovs 
+  echo all
+}
+
+$1
+rc=`echo $?`
+if [ $rc == 127 ]; then
+   help
+fi

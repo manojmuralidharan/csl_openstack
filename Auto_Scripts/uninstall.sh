@@ -9,6 +9,9 @@ function horizon {
 
 function swift {
    swift-init main stop && service rsyslog sop && service memcached stop
+   rm -rf /home/swift/keystone-signing
+   rm -rf /etc/swift/
+   rm -rf /srv/node/
    apt-get -y remove swift swift-account swift-container swift-object swift-proxy openssh-server memcached python-pip python-netifaces python-xattr python-memcache xfsprogs python-keystoneclient python-swiftclient python-webob git
    apt-get -y autoremove swift swift-account swift-container swift-object swift-proxy openssh-server memcached python-pip python-netifaces python-xattr python-memcache xfsprogs python-keystoneclient python-swiftclient python-webob git
    apt-get -y purge swift swift-account swift-container swift-object swift-proxy openssh-server memcached python-pip python-netifaces python-xattr python-memcache xfsprogs python-keystoneclient python-swiftclient python-webob git
