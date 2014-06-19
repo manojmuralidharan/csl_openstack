@@ -1,17 +1,23 @@
-#!/bin/bash
-#Network testing starts here : Reference : https://wiki.debian.org/OpenStackHowto/Quantum
- neutron net-create testnetwork
- neutron subnet-create testnetwork 10.0.0.0/24
- neutron subnet-update 126b75ac-4bb7-475d-ba2e-b8b85a710d4b --dns_nameservers list=true 8.8.8.8
- neutron router-create testrouter
- neutron router-interface-add 1e69f5c4-2e2c-4399-97d0-64c822eb4e7a 126b75ac-4bb7-475d-ba2e-b8b85a710d4b
- neutron net-create ext_net --router:external=True
- neutron subnet-create --allocation-pool start=10.2.56.240,end=10.2.56.250 ext_net 10.2.56.0/24 --enable_dhcp=False
- neutron net list
- neutron subnet-list
- neutron router-list
- neutron router-gateway-set 1e69f5c4-2e2c-4399-97d0-64c822eb4e7a 08180148-93ca-410f-a64c-00339862010c
- nova secgroup-add-rule default icmp -1 -1 0.0.0.0/0
- nova secgroup-add-rule default tcp 1 65535 0.0.0.0/0
- nova secgroup-add-rule default udp 1 65535 0.0.0.0/0
- #Try to launch an instance from horizon or CLI : "nova boot --flavor m1_512_20 --image "CirrOS 0.3.1" --nic net-id=9fdb051a-0f50-4972-8305-3bc2569a3241 cirros"
+#!/bin/bash -x
+
+   read -p "Enter the Floating IP start address" FIP_START
+   read -p "Enter the Floating IP end address" FIP_END
+   read -p "Enter the Floating IP Subnet in CIDR format(e.g 10.0.0.0/24)" FIP_SUBNET
+
+   neutron net-create testnetwork
+   neutron subnet-create --name testsubnet testnetwork 10.0.0.0/24
+   testsubnet=`neutron subnet-list | grep testsubnet | awk -F "|" '{print $2}'`
+   neutron subnet-update $testsubnet --dns_nameservers list=true 8.8.8.8
+ 
+   neutron router-create testrouter
+   router=`neutron router-list | grep testrouter | awk -F "|" '{print $2}'`
+   neutron router-interface-add $router $testsubnet
+   
+   neutron net-create ext_net --router:external=True
+   extnet=`neutron net-list | grep ext_net | awk -F "|" '{print $2}'`
+   neutron subnet-create --name extsubnet --allocation-pool start=$FIP_START,end=$FIP_END ext_net $FIP_SUBNET --enable_dhcp=False
+   neutron router-gateway-set $router $extnet 
+   
+   nova secgroup-add-rule default icmp -1 -1 0.0.0.0/0
+   nova secgroup-add-rule default tcp 1 65535 0.0.0.0/0
+   nova secgroup-add-rule default udp 1 65535 0.0.0.0/0
