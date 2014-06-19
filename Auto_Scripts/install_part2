@@ -49,6 +49,14 @@ function horizon  {
    service apache2 restart; service memcached restart
 }
 
+function install_completed {
+   echo "****************************************************************************************"
+   echo "* Installation of openstack components all in one node is completed........            *"
+   echo "* Now run test_install to setup neutron networks, subnets and routers for  the VMs     *"
+   echo "* After which you can access openstack from http://<externel ip>/horizon/              *"
+   echo "****************************************************************************************"
+}
+
 #Execution begins here
 function all {
    neutron
@@ -56,6 +64,7 @@ function all {
    cinder
    swift
    horizon
+   install_completed
 }
 
 function help {
