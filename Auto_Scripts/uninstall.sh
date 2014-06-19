@@ -2,9 +2,8 @@
 
 function horizon {
    service apache2 stop; service memcached stop
-   apt-get -y remove openstack-dashboard memcached 
+   apt-get -y --purge remove openstack-dashboard memcached 
    apt-get -y autoremove openstack-dashboard memcached
-   apt-get -y purge openstack-dashboard memcached 
 }
 
 function swift {
