@@ -10,17 +10,6 @@
 #   At least 4 GB RAM                                                                                  #
 ########################################################################################################
 
-readonly user=`whoami`
-if [ "X$user" != "Xroot" ]; then
-   echo "You should be a root user to run this script"
-   exit
-fi
-
-ROOT_DIR=`pwd`
-read -p "Enter the External IP " EXT_IP
-read -p "Enter the Internal IP " MGMT_IP 
-read -p "Enter the OS password " OPENSTACK_PW 
-
 . functions
 
 function update {
@@ -79,12 +68,12 @@ function ovs {
    ovs-vsctl add-br br-ex
 }
 
-#After ovs bridges are created the network interfaces are to be re-alligned. For this refer install_manual.txt.
+#After ovs bridges are created the network interfaces are to be re-alligned. For this refer install_manual.
 function install_manual {
    echo "****************************************************************************************"
    echo "* Installation part 1 is completed........                                             *"
    echo "* Before part 2 you should re-configure the network interfaces to suit openstack needs *"
-   echo "* With the help of install_manual.txt set up the interfaces and netwroking of the host *"
+   echo "* With the help of install_manual set up the interfaces and netwroking of the host     *"
    echo "****************************************************************************************"
 }
 
@@ -101,14 +90,31 @@ function all {
 
 function help {
   echo Usage
-  echo "./install_part1.sh <option> where option can be one of the below"
+  echo "./install_part1 <option> where option can be one of the below"
   echo update
   echo mysql
   echo keystone
   echo glance
   echo ovs 
   echo all
+  echo help
 }
+
+readonly user=`whoami`
+if [ "X$user" != "Xroot" ]; then
+   echo "You should be a root user to run this script"
+   exit
+fi
+
+if [ "X$1" == "X" ]; then
+   help
+   exit
+fi
+
+ROOT_DIR=`pwd`
+read -p "Enter the External IP " EXT_IP
+read -p "Enter the Internal IP " MGMT_IP 
+read -p "Enter the OS password " OPENSTACK_PW 
 
 $1
 rc=`echo $?`

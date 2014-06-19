@@ -1,5 +1,5 @@
 
-Once install_part1.sh completes do the following manually
+Once install_part1 completes do the following manually
 1. observe ifconfig output
    a. You should see two bridge interfaces br-ex and br-int
    b. Do "ovs-vsctl add-port br-ex eth0". Assuming eth0 as the one connected to INTERNET.
@@ -47,4 +47,4 @@ Note: After this operation the connection to internet would be lost from eth0.
       |                                                     |
        -----------------------------------------------------
 
-7. Once you are able to reach internet run install_part2.sh
+7. Once you are able to reach internet run install_part2

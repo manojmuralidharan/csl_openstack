@@ -1,7 +1,27 @@
+This is one way to setup an all in one(single node) openstack environment
 
-This is one way to setup an all in one(single node) openstack environment.
-1. Begin by running the install_part1.sh script
-2. Then manually setup your host networking getting hints referring install_manual.txt
-3. Finally execute the install_part2.sh
-4. Setup neutron networks for VMs by executing the openstack_test.sh
+Requirements
+ 1. Operating system
+    Ubuntu 12.04 Server 64-bit
+ 2. Disk
+    This guide assumes your disk is partitioned as follows:
+	Partition 	Filesystem 	Mount point 	Size
+	/dev/sda1 	swap 		n/a 		(Amount of RAM) * 2
+	/dev/sda2 	ext4 		/ 		30+ GB
+	/dev/sda3 	none 		n/a 		30+ GB
+	/dev/sda4 	xfs 		/srv/node/sda4 	10+ GB
 
+ 3. Network
+    Two NICs are required with one having access to Internet.
+    eth0 & eth1
+
+Steps to install
+ 1. Begin by running the install_part1 script
+ 2. Then manually setup your host networking getting hints referring install_manual
+ 3. Finally execute the install_part2
+ 4. Setup neutron networks for VMs by executing the openstack_test.sh
+
+Reference
+ 1. https://github.com/Ch00k/openstack-install-aio/blob/master/openstack-all-in-one.rst#operating-system
+ 2. https://github.com/fornyx/OpenStack-Havana-Install-Guide/blob/master/OpenStack-Havana-Install-Guide.rst
+ 3. https://wiki.debian.org/OpenStackHowto/Quantum
