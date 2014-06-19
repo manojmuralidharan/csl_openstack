@@ -56,7 +56,6 @@ function install_horizon  {
 
 #Execution begins here
 function main {
-
    install_neutron
    install_nova
    install_cinder

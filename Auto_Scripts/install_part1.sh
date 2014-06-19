@@ -23,14 +23,14 @@ read -p "Enter the OS password " OPENSTACK_PW
 
 . functions
 
-function update_repo {
+function update {
    apt-get -y install ubuntu-cloud-keyring python-software-properties software-properties-common python-keyring   
    echo deb http://ubuntu-cloud.archive.canonical.com/ubuntu precise-proposed/havana main >> /etc/apt/sources.list.d/havana.list
    apt-get -y update && apt-get -y upgrade && apt-get -y dist-upgrade
 }
 
 #MySql & messaging frameworks
-function install_mysql {
+function mysql {
    apt-get install -y mysql-server python-mysqldb rabbitmq-server ntp
    #Modify conf, restart and poputele db
    sed -i 's/127.0.0.1/0.0.0.0/g' /etc/mysql/my.cnf
@@ -47,7 +47,7 @@ function check_ip_forwarding {
 }
 
 #Keystone
-function install_keystone {
+function keystone {
    apt-get install -y keystone
    #Modify conf, restart and poputele db
    chmod +x populate_keystone.sh 
@@ -62,7 +62,7 @@ function install_keystone {
 }
 
 #Glance
-function install_glance {
+function glance {
    apt-get -y install glance
    #Modify conf, restart and poputele db
    modify_glance_conf
@@ -73,7 +73,7 @@ function install_glance {
 }
 
 #Neutron: OVS
-function install_neutron_vs {
+function ovs {
    apt-get install -y openvswitch-controller openvswitch-switch openvswitch-datapath-dkms
    ovs-vsctl add-br br-int
    ovs-vsctl add-br br-ex
@@ -89,14 +89,29 @@ function install_manual {
 }
 
 #main function where the real execution begins
-function main {
-   update_repo
-   install_mysql
+function all {
+   #update
+   mysql
    check_ip_forwarding   
-   install_keystone
-   install_glance
-   install_neutron_vs
+   keystone
+   glance
+   ovs
    install_manual
 }
 
-main 2>&1
+function help {
+  echo Usage
+  echo "./install_part1.sh <option> where option can be one of the below"
+  echo update
+  echo mysql
+  echo keystone
+  echo glance
+  echo ovs 
+  echo all
+}
+
+$1
+rc=`echo $?`
+if [ $rc == 127 ]; then
+   help
+fi
