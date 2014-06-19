@@ -73,7 +73,7 @@ function install_manual {
    echo "****************************************************************************************"
    echo "* Installation part 1 is completed........                                             *"
    echo "* Before part 2 you should re-configure the network interfaces to suit openstack needs *"
-   echo "* With the help of install_manual set up the interfaces and netwroking of the host     *"
+   echo "* With the help of install_manual set up the interfaces and networking of the host     *"
    echo "****************************************************************************************"
 }
 

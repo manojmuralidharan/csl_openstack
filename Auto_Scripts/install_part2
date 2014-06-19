@@ -27,6 +27,13 @@ function nova {
 #Cinder
 function cinder {
    apt-get install -y cinder-api cinder-scheduler cinder-volume
+   pvcreate $CINDER_PART
+   vgcreate cinder-volumes $CINDER_PART
+   modify_cinder_conf 
+   rm /var/lib/cinder/cinder.sqlite
+   cinder-manage db sync
+   service tgt restart
+   for i in $( ls /etc/init.d/cinder-* ); do service `basename $i` restart; done
 }
 
 #Swift
@@ -76,7 +83,8 @@ fi
 ROOT_DIR=`pwd`
 read -p "Enter the External IP " EXT_IP
 read -p "Enter the Internal IP " MGMT_IP
-read -p "Enter the swift partition " SWIFT_PART
+read -p "Enter the swift partition (format: sdaX)" SWIFT_PART
+read -p "Enter the cinder partition (format: /dev/sdaX)" CINDER_PART
 read -p "Enter the OS password " OPENSTACK_PW
    
 $1

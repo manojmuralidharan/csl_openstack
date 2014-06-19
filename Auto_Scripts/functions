@@ -184,6 +184,20 @@ function modify_nova_conf {
 
 }
 
+function modify_cinder_conf {
+   updateDefaultProperty "sql_connection" "sql_connection = mysql:\/\/cinder:$OPENSTACK_PW@$MGMT_IP\/cinder" "/etc/cinder/cinder.conf"
+   updateSectionProperty "\[filter:authtoken\]" "paste.filter_factory" "paste.filter_factory = keystoneclient.middleware.auth_token:filter_factory" "/etc/cinder/api-paste.ini"
+   updateSectionProperty "\[filter:authtoken\]" "service_protocol" "service_protocol = http" "/etc/cinder/api-paste.ini"
+   updateSectionProperty "\[filter:authtoken\]" "service_host" "service_host = $MGMT_IP" "/etc/cinder/api-paste.ini"
+   updateSectionProperty "\[filter:authtoken\]" "service_port" "service_port = 5000" "/etc/cinder/api-paste.ini"
+   updateSectionProperty "\[filter:authtoken\]" "auth_host" "auth_host = $MGMT_IP" "/etc/cinder/api-paste.ini"
+   updateSectionProperty "\[filter:authtoken\]" "auth_port" "auth_port = 35357"  "/etc/cinder/api-paste.ini"
+   updateSectionProperty "\[filter:authtoken\]" "auth_protocol" "auth_protocol = http"  "/etc/cinder/api-paste.ini"
+   updateSectionProperty "\[filter:authtoken\]" "admin_tenant_name" "admin_tenant_name = service"  "/etc/cinder/api-paste.ini"
+   updateSectionProperty "\[filter:authtoken\]" "admin_user" "admin_user = cinder"  "/etc/cinder/api-paste.ini"
+   updateSectionProperty "\[filter:authtoken\]" "admin_password" "admin_password = $OPENSTACK_PW"  "/etc/cinder/api-paste.ini"
+}
+
 function modify_swift_conf {
 
    mkdir -p /etc/swift && chown -R swift:swift /etc/swift/
