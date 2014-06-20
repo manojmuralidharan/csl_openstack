@@ -22,7 +22,7 @@ function updateSectionProperty {
                 sed -i "s/^.*#*.*$section.*$/$section/" $file
 		#Delete the key value pair if already present under the section
                 sed -i "/$section/,/[\[$]/{/^ *$keyVal.*$/d}" $file
-		append the updated key value pair under the given section
+		#append the updated key value pair under the given section
                 sed -i "/$section.*$/a$newKeyVal" $file
         else
 		#Section is not present so add the section and the ney value pair at t he EOF
