@@ -23,6 +23,9 @@ Steps to install
     After part2 installation you will have neutron, nova, cinder, swift & horizon installed.
  4. Setup neutron networks for VMs by executing the test_install
  5. Now you will be able to log on to horizon dashboard using http://<ext_ip>/horizon
+ 
+ Note : a. install scripts have provision to install components one by one or all in one go. But please maintain the order.
+        b. During the installation if you want to revert back use the uninstall script
 
 Reference
  1. https://github.com/Ch00k/openstack-install-aio/blob/master/openstack-all-in-one.rst#operating-system
