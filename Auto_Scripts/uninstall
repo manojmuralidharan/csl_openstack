@@ -95,6 +95,7 @@ function help {
    echo keystone
    echo mysql
    echo ovs
+   echo all
    echo help
 }
 
