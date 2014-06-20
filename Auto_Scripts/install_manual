@@ -7,7 +7,7 @@ Once install_part1 completes do the following manually
 Note: After this operation the connection to internet would be lost from eth0.
 
 2. Update interfaces configuration and modify routes/resolve configurations as required.
-   a. Replicate the configuration that eth0 had onto br-ex and conf eth0 to come up manually
+   a. Replicate the configuration that eth0 had onto br-ex and configure eth0 to come up manually
       A sample /etc/network/interfaces file is as below
        -----------------------------------------------------------------------
       |	auto lo                                                               | 
@@ -47,4 +47,4 @@ Note: After this operation the connection to internet would be lost from eth0.
       |                                                     |
        -----------------------------------------------------
 
-7. Once you are able to reach internet run install_part2
+7. Once you are able to reach internet through br-ex, run install_part2
