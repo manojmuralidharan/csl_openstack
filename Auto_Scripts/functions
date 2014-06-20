@@ -18,10 +18,14 @@ function updateSectionProperty {
         grep -q  $section $file
         sectionPresent=`echo $?`
         if [ $sectionPresent == 0 ]; then
+		#Uncomment if the section is commented
                 sed -i "s/^.*#*.*$section.*$/$section/" $file
+		#Delete the key value pair if already present under the section
                 sed -i "/$section/,/[\[$]/{/^ *$keyVal.*$/d}" $file
+		append the updated key value pair under the given section
                 sed -i "/$section.*$/a$newKeyVal" $file
         else
+		#Section is not present so add the section and the ney value pair at t he EOF
                 echo $section | sed s'@\\@@g' >> $file && echo $newKeyVal | sed s'@\\@@g' >> $file
         fi
   done
