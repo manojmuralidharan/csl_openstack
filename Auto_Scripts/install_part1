@@ -79,7 +79,7 @@ function install_manual {
 
 #main function where the real execution begins
 function all {
-   #update
+   update
    mysql
    check_ip_forwarding   
    keystone
