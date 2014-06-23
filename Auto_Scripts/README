@@ -22,7 +22,7 @@ Steps to install
  3. Finally execute the install_part2
     After part2 installation you will have neutron, nova, cinder, swift & horizon installed.
  4. Setup neutron networks for VMs by executing the test_install
- 5. Now you will be able to log on to horizon dashboard using http://<ext_ip>/horizon
+ 5. Now you can log on to horizon dashboard using http://<ext_ip>/horizon to create your first VM
  
  Note : a. During install there are 3 spots where user intervention is required.
 		i. To enter the mysql server root password

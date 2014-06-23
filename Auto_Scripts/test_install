@@ -1,4 +1,4 @@
-#!/bin/bash -x
+#!/bin/bash 
 
    read -p "Enter the Floating IP start address" FIP_START
    read -p "Enter the Floating IP end address" FIP_END
