@@ -24,7 +24,11 @@ Steps to install
  4. Setup neutron networks for VMs by executing the test_install
  5. Now you will be able to log on to horizon dashboard using http://<ext_ip>/horizon
  
- Note : a. install scripts have provision to install components one by one or all in one go. But please maintain the order.
+ Note : a. During install there are 3 spots where user intervention is required.
+		i. To enter the mysql server root password
+		ii. The actions between install_part1 and part2
+		iii. To setup the the swift certificate key
+	b. install scripts have provision to install components one by one or all in one go. But please maintain the order.
         b. During the installation if you want to revert back use the uninstall script
 
 Reference
