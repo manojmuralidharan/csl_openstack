@@ -1,4 +1,4 @@
-#!/bin/bash
+#!/bin/bash 
 
 function horizon {
    service apache2 stop; service memcached stop
@@ -11,9 +11,8 @@ function swift {
    rm -rf /home/swift/keystone-signing
    rm -rf /etc/swift/
    rm -rf /srv/node/
-   apt-get -y remove swift swift-account swift-container swift-object swift-proxy openssh-server memcached python-pip python-netifaces python-xattr python-memcache xfsprogs python-keystoneclient python-swiftclient python-webob git
-   apt-get -y autoremove swift swift-account swift-container swift-object swift-proxy openssh-server memcached python-pip python-netifaces python-xattr python-memcache xfsprogs python-keystoneclient python-swiftclient python-webob git
-   apt-get -y purge swift swift-account swift-container swift-object swift-proxy openssh-server memcached python-pip python-netifaces python-xattr python-memcache xfsprogs python-keystoneclient python-swiftclient python-webob git
+   apt-get -y --purge remove swift swift-account swift-container swift-object swift-proxy openssh-server memcached python-pip python-netifaces python-xattr python-memcache xfsprogs python-keystoneclient python-swiftclient python-webob
+   apt-get -y autoremove swift swift-account swift-container swift-object swift-proxy openssh-server memcached python-pip python-netifaces python-xattr python-memcache xfsprogs python-keystoneclient python-swiftclient python-webob
 }   
 
 function cinder {
@@ -48,8 +47,8 @@ function keystone {
    apt-get autoremove -y keystone
 }
 
-function mysql {
-   mysql -uroot -popenstackcs  -e "show databases" | grep -v Database | grep -v mysql| grep -v information_schema| grep -v test | grep -v OLD |gawk '{print "drop database " $1 ";select sleep(0.1);"}' | mysql -uroot -popenstackcs
+function mysqldb {
+   mysql -uroot -popenstackcs  -e "show databases" | grep -v Database | grep -v mysql|grep -v performance_schema |grep -v information_schema| grep -v test | grep -v OLD |gawk '{print "drop database " $1 ";select sleep(0.1);"}' | mysql -uroot -popenstackcs
    service mysql stop
    apt-get remove -y --purge mysql* python-mysql* rabbitmq-server ntp
    apt-get autoremove -y mysql-server python-mysqldb rabbitmq-server ntp
@@ -59,6 +58,7 @@ function ovs {
    ovs-vsctl del-port br-ex eth0
    ovs-vsctl del-br br-ex
    ovs-vsctl del-br br-int
+   ovs-vsctl del-br br-tun
    apt-get remove -y --purge "^.*openvswitch*"
    apt-get autoremove -y openvswitch-controller openvswitch-switch openvswitch-datapath-dkms
 }
@@ -79,8 +79,9 @@ function all {
    neutron
    glance
    keystone
-   mysql
+   mysqldb
    ovs
+   finish
 }
 
 function help {
@@ -93,7 +94,7 @@ function help {
    echo neutron
    echo glance
    echo keystone
-   echo mysql
+   echo mysqldb
    echo ovs
    echo all
    echo help
