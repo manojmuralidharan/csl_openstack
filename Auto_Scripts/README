@@ -16,12 +16,12 @@ Requirements
     eth0 & eth1
 
 Steps to install
- 1. Begin by running the install_part1 script
-    After this compeletes you will have mysql, keystone, glance and ovs-switch installed on your host.
- 2. Then manually setup your host networking getting hints referring install_manual.
- 3. Finally execute the install_part2
+ 1. As root (sudo -i) execute the install_part1 script
+    After this completes you will have mysql, keystone, glance and ovs-switch installed on your host.
+ 2. Then manually setup your host networking getting hints from install_manual.
+ 3. Finally execute the install_part2 script
     After part2 installation you will have neutron, nova, cinder, swift & horizon installed.
- 4. Setup neutron networks for VMs by executing the test_install
+ 4. Setup neutron networks for VMs by executing the script test_install
  5. Now you can log on to horizon dashboard using http://<ext_ip>/horizon to create your first VM
  
  Note : a. During install there are 3 spots where user intervention is required.
