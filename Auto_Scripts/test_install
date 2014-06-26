@@ -1,11 +1,13 @@
 #!/bin/bash 
 
+function create_networks {
    read -p "Enter the Floating IP start address" FIP_START
    read -p "Enter the Floating IP end address" FIP_END
    read -p "Enter the Floating IP Subnet in CIDR format(e.g 10.0.0.0/24)" FIP_SUBNET
 
    neutron net-create testnetwork
-   neutron subnet-create --name testsubnet testnetwork 10.0.0.0/24
+   neutron subnet-create --name testsubnet testnetwork 10.0.0.0/24 
+   #neutron subnet-create --name testsubnet testnetwork 10.0.10.0/24 --gateway 10.0.10.5 --allocation-pool start=10.0.10.1,end=10.0.10.4 --enable_dhcp=False
    testsubnet=`neutron subnet-list | grep testsubnet | awk -F "|" '{print $2}'`
    neutron subnet-update $testsubnet --dns_nameservers list=true 8.8.8.8
  
@@ -17,7 +19,48 @@
    extnet=`neutron net-list | grep ext_net | awk -F "|" '{print $2}'`
    neutron subnet-create --name extsubnet --allocation-pool start=$FIP_START,end=$FIP_END ext_net $FIP_SUBNET --enable_dhcp=False
    neutron router-gateway-set $router $extnet 
-   
+}
+
+function add_secGroup_rules {
    nova secgroup-add-rule default icmp -1 -1 0.0.0.0/0
    nova secgroup-add-rule default tcp 1 65535 0.0.0.0/0
    nova secgroup-add-rule default udp 1 65535 0.0.0.0/0
+}
+
+function delete_networks {
+   router=`neutron router-list | grep testrouter | awk -F "|" '{print $2}'`
+   testsubnet=`neutron subnet-list | grep testsubnet | awk -F "|" '{print $2}'`
+   neutron router-interface-delete $router $testsubnet
+   
+   extnet=`neutron net-list | grep ext_net | awk -F "|" '{print $2}'`
+   neutron router-gateway-clear $router $extnet    
+   
+   testnetwork=`neutron net-list | grep testnetwork | awk -F "|" '{print $2}'`
+   extsubnet=`neutron subnet-list | grep extsubnet | awk -F "|" '{print $2}'`   
+
+   neutron router-delete $router
+   neutron subnet-delete $extsubnet
+   neutron subnet-delete $testsubnet
+   neutron net-delete $testnetwork
+   neutron net-delete $extnet
+}
+
+function help {
+   echo "Usage: ./test_install <options> where options could be either of the following"
+   echo create_networks
+   echo add_secGroup_rules 
+   echo delete_networks
+}
+
+readonly user=`whoami`
+if [ "X$user" != "Xroot" ]; then
+   echo "You should be a root user to run this script"
+   exit
+fi
+
+if [ "X$1" == "X" ]; then
+   help
+   exit
+fi
+
+$1
